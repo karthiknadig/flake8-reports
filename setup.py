@@ -17,7 +17,7 @@ setuptools.setup(
     packages=["flake8junit",],
     package_dir={'': 'src'},
     install_requires=["flake8 > 3.0.0",],
-    entry_points={'flake8.report': ['X = flake8junit:Flake8JUnitPlugin',],},
+    entry_points={'flake8.report': ['junit = flake8junit:Flake8JUnit',],},
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Framework :: Flake8",
