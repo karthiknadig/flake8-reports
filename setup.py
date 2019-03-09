@@ -6,18 +6,27 @@ with open('DESCRIPTION.md', 'r') as desc:
     description = desc.read()
 
 setuptools.setup(
-    name="flake8junit",
+    name="flake8reports",
     license="MIT",
     version=versioneer.get_version(),
     description=description,
     long_description_content_type='text/markdown',
     author="Karthik Nadig",
-    url="https://gitlab.com/karthiknadig/flake8junit",
+    url="https://gitlab.com/karthiknadig/flake8reports",
     python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*',
-    packages=["flake8junit",],
+    packages=["flake8reports",],
     package_dir={'': 'src'},
     install_requires=["flake8 > 3.0.0",],
-    entry_points={'flake8.report': ['junit = flake8junit:Flake8JUnit',],},
+    entry_points={
+        'flake8.report': [
+                'junit = flake8reports:Flake8junit',
+                'xml = flake8reports:Flake8xml',
+                'csv = flake8reports:Flake8csv',
+                'tsv = flake8reports:Flake8tsv',
+                'ssv = flake8reports:Flake8ssv',
+                'json = flake8reports:Flake8json',
+            ],
+        },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Framework :: Flake8",

@@ -42,8 +42,8 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = "pep440"
     cfg.tag_prefix = "v"
-    cfg.parentdir_prefix = "flake8junit-"
-    cfg.versionfile_source = "src/flake8junit/_version.py"
+    cfg.parentdir_prefix = "flake8reports-"
+    cfg.versionfile_source = "src/flake8reports/_version.py"
     cfg.verbose = False
     return cfg
 

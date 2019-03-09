@@ -1,25 +1,22 @@
-
-__all__ = ['__version__', '__author__','Flake8JUnit']
-from flake8junit.version import __version__, __author__
 from flake8.formatting.base import BaseFormatter
 from xml.sax.saxutils import escape
 
 
-class Flake8JUnit(BaseFormatter):
+class Flake8junit(BaseFormatter):
     """Flake8's error text to JUnit XML converter."""
     def _is_error(self, code):
         return len(code) > 0 and code[0] in ('e', 'E')
 
     def beginning(self, filename):
-        super(Flake8JUnit, self).beginning(filename)
+        super(Flake8junit, self).beginning(filename)
         self.write('    <testsuite name="{0}">'.format(filename), None)
 
     def finished(self, filename):
         self.write('    </testsuite>', None)
-        super(Flake8JUnit, self).finished(filename)
+        super(Flake8junit, self).finished(filename)
 
     def start(self):
-        super(Flake8JUnit, self).start()
+        super(Flake8junit, self).start()
         self.write('<?xml version="1.0" encoding="UTF-8"?>', None)
         self.write('<testsuites>', None)
 
@@ -49,4 +46,4 @@ class Flake8JUnit(BaseFormatter):
 
     def stop(self):
         self.write('</testsuites>', None)
-        super(Flake8JUnit, self).stop()
+        super(Flake8junit, self).stop()

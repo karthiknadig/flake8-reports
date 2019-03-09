@@ -1,1 +1,1 @@
-src/flake8junit/_version.py export-subst
+src/flake8reports/_version.py export-subst
