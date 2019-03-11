@@ -1,14 +1,7 @@
 import sys
-import time
 
 from flake8.formatting.base import BaseFormatter
 from xml.etree import ElementTree as ET
-
-
-if sys.version_info >= (3, 5):
-    current_time = time.monotonic
-else:
-    current_time = time.clock
 
 
 class Flake8junit(BaseFormatter):
@@ -22,22 +15,18 @@ class Flake8junit(BaseFormatter):
         assert self._testsuite is None
         self._testsuite = ET.Element('testsuite')
         self._testsuite.attrib['name'] = filename
-        self._testsuite_start = current_time()
 
     def finished(self, filename):
         assert self._testsuite is not None
-        if len(self._testsuite.items()) > 0:
-            self._testsuite.attrib['timestamp'] = "{0}".format(current_time() - self._testsuite_start)
-            self._testsuite.attrib['time'] = "{0}".format(current_time() - self._testsuite_start)
+        if len(list(self._testsuite)) > 0:
             self._root.append(self._testsuite)
-            self._testsuite = None
+        self._testsuite = None
         super(Flake8junit, self).finished(filename)
 
     def start(self):
         super(Flake8junit, self).start()
         self._root = ET.Element('testsuites')
         self._testsuite = None
-        self._testsuites_start = current_time()
 
     def handle(self, error):
         assert self._testsuite is not None
@@ -45,7 +34,6 @@ class Flake8junit(BaseFormatter):
             testcase = ET.SubElement(self._testsuite, 'testcase')
             testcase.attrib['classname'] = 'flake8'
             testcase.attrib['name'] = error.filename
-            start = current_time()
 
             failure = ET.SubElement(testcase, 'failure')
             failure.attrib['message'] = "{0}:{1}:{2} {3} {4}".format(
@@ -59,9 +47,6 @@ class Flake8junit(BaseFormatter):
 
             if self.options.show_source and error.physical_line is not None:
                 failure.text = super(Flake8junit, self).show_source(error)
-
-            testcase.attrib['time'] = "{0}".format(current_time() - start)
-            testcase.attrib['timestamp'] = "{0}".format(current_time() - start)
 
     def show_statistics(self, statistics):
         testsuite = ET.Element('testsuite')
@@ -115,11 +100,9 @@ class Flake8junit(BaseFormatter):
         return str(error)
 
     def stop(self):
-        self._root.attrib['duration'] = "{0}".format(current_time() - self._testsuites_start)
-        self._root.attrib['timestamp'] = "{0}".format(current_time() - self._testsuites_start)
-        self._root.attrib['time'] = "{0}".format(current_time() - self._testsuites_start)
-        res = ET.tostring(self._root)
+        self.write('<?xml version="1.0" encoding="utf-8"?>', None)
+        res = ET.tostring(self._root, encoding='utf-8')
         if isinstance(res, bytes):
-            res = res.decode(sys.getfilesystemencoding())
+            res = res.decode('utf-8')
         self.write(res, None)
         super(Flake8junit, self).stop()
