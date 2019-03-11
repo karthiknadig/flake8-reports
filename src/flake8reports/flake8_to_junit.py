@@ -27,6 +27,7 @@ class Flake8junit(BaseFormatter):
     def finished(self, filename):
         assert self._testsuite is not None
         if len(self._testsuite.items()) > 0:
+            self._testsuite.attrib['timestamp'] = "{0}".format(current_time() - self._testsuite_start)
             self._testsuite.attrib['time'] = "{0}".format(current_time() - self._testsuite_start)
             self._root.append(self._testsuite)
             self._testsuite = None
@@ -44,7 +45,7 @@ class Flake8junit(BaseFormatter):
             testcase = ET.SubElement(self._testsuite, 'testcase')
             testcase.attrib['classname'] = 'flake8'
             testcase.attrib['name'] = error.filename
-            testcase.attrib['time'] = '0'
+            start = current_time()
 
             failure = ET.SubElement(testcase, 'failure')
             failure.attrib['message'] = "{0}:{1}:{2} {3} {4}".format(
@@ -58,6 +59,9 @@ class Flake8junit(BaseFormatter):
 
             if self.options.show_source and error.physical_line is not None:
                 failure.text = super(Flake8junit, self).show_source(error)
+
+            testcase.attrib['time'] = "{0}".format(current_time() - start)
+            testcase.attrib['timestamp'] = "{0}".format(current_time() - start)
 
     def show_statistics(self, statistics):
         testsuite = ET.Element('testsuite')
@@ -112,6 +116,8 @@ class Flake8junit(BaseFormatter):
 
     def stop(self):
         self._root.attrib['duration'] = "{0}".format(current_time() - self._testsuites_start)
+        self._root.attrib['timestamp'] = "{0}".format(current_time() - self._testsuites_start)
+        self._root.attrib['time'] = "{0}".format(current_time() - self._testsuites_start)
         res = ET.tostring(self._root)
         if isinstance(res, bytes):
             res = res.decode(sys.getfilesystemencoding())
