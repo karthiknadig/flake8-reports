@@ -10,30 +10,17 @@ class Flake8junit(BaseFormatter):
     def _is_error(self, code):
         return len(code) > 0 and code[0] in ('e', 'E')
 
-    def beginning(self, filename):
-        super(Flake8junit, self).beginning(filename)
-        assert self._testsuite is None
-        self._testsuite = ET.Element('testsuite')
-        self._testsuite.attrib['name'] = filename
-
-    def finished(self, filename):
-        assert self._testsuite is not None
-        if len(list(self._testsuite)) > 0:
-            self._root.append(self._testsuite)
-        self._testsuite = None
-        super(Flake8junit, self).finished(filename)
-
     def start(self):
         super(Flake8junit, self).start()
-        self._root = ET.Element('testsuites')
-        self._testsuite = None
+        self._root = ET.Element('testsuite')
+        self._root.attrib['name'] = 'flake8'
 
     def handle(self, error):
-        assert self._testsuite is not None
         if error.code is not None:
-            testcase = ET.SubElement(self._testsuite, 'testcase')
-            testcase.attrib['classname'] = 'flake8'
+            testcase = ET.SubElement(self._root, 'testcase')
+            testcase.attrib['classname'] = 'flake8.%s' % error.code
             testcase.attrib['name'] = error.filename
+            testcase.attrib['line'] = '%d' % error.line_number
 
             failure = ET.SubElement(testcase, 'failure')
             failure.attrib['message'] = "{0}:{1}:{2} {3} {4}".format(
@@ -49,14 +36,10 @@ class Flake8junit(BaseFormatter):
                 failure.text = super(Flake8junit, self).show_source(error)
 
     def show_statistics(self, statistics):
-        testsuite = ET.Element('testsuite')
-        testsuite.attrib['name'] = 'statistics'
-
         for error_code in statistics.error_codes():
-
-            testcase = ET.SubElement(testsuite, 'testcase')
-            testcase.attrib['classname'] = 'flake8'
-            testcase.attrib['name'] = error_code
+            testcase = ET.SubElement(self._root, 'testcase')
+            testcase.attrib['classname'] = 'flake8.statistics'
+            testcase.attrib['name'] = 'flake8.%s' % error_code
 
             stats_for_error_code = statistics.statistics_for(error_code)
             statistic = next(stats_for_error_code)
@@ -67,34 +50,27 @@ class Flake8junit(BaseFormatter):
                 error_code=error_code,
                 message=statistic.message,
             )
+            testcase.attrib['code'] = error_code
+            testcase.attrib['count'] = "{count}".format(count=count)
+            testcase.attrib['message'] = "{message}".format(message=statistic.message)
 
             systemout = ET.SubElement(testcase, 'system-out')
             systemout.text = text
 
-        self._root.append(testsuite)
-
     def show_benchmarks(self, benchmarks):
-        testsuite = ET.Element('testsuite')
-        testsuite.attrib['name'] = 'benchmarks'
-
-        float_format = "{value:<10.3} {statistic}".format
-        int_format = "{value:<10} {statistic}".format
-
-        for statistic, value in benchmarks:
-
-            testcase = ET.SubElement(testsuite, 'testcase')
-            testcase.attrib['classname'] = 'flake8'
-            testcase.attrib['name'] = statistic
+        for benchmark, value in benchmarks:
+            testcase = ET.SubElement(self._root, 'testcase')
+            testcase.attrib['classname'] = 'flake8.benchmarks'
+            testcase.attrib['name'] = benchmark
 
             if isinstance(value, int):
-                benchmark = int_format(statistic=statistic, value=value)
+                text = "{value:<10} {benchmark}".format(benchmark=benchmark, value=value)
             else:
-                benchmark = float_format(statistic=statistic, value=value)
+                text = "{value:<10.3} {benchmark}".format(benchmark=benchmark, value=value)
 
+            testcase.attrib['value'] = "{value}".format(value=value)
             systemout = ET.SubElement(testcase, 'system-out')
-            systemout.text = benchmark
-
-        self._root.append(testsuite)
+            systemout.text = text
 
     def format(self, error):
         return str(error)
