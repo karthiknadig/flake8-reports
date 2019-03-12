@@ -27,7 +27,7 @@ class Flake8xml(BaseFormatter):
                 data.text = super(Flake8xml, self).show_source(error)
 
     def show_statistics(self, statistics):
-        stats = ET.Element(self._root, 'stats')
+        stats = ET.SubElement(self._root, 'stats')
         for error_code in statistics.error_codes():
             stat = ET.SubElement(stats, 'testcase')
 
@@ -41,7 +41,7 @@ class Flake8xml(BaseFormatter):
             stat.attrib['message'] = "{message}".format(message=statistic.message)
 
     def show_benchmarks(self, benchmarks):
-        bmarks = ET.Element(self._root, 'benchmarks')
+        bmarks = ET.SubElement(self._root, 'benchmarks')
         for benchmark, value in benchmarks:
             bmark = ET.SubElement(bmarks, 'benchmark')
             bmark.attrib['name'] = benchmark
