@@ -1,5 +1,3 @@
-import sys
-
 from flake8.formatting.base import BaseFormatter
 from xml.etree import ElementTree as ET
 
@@ -14,6 +12,7 @@ class Flake8junit(BaseFormatter):
         super(Flake8junit, self).start()
         self._root = ET.Element('testsuite')
         self._root.attrib['name'] = 'flake8'
+        self.duration = 0
 
     def handle(self, error):
         if error.code is not None:
@@ -21,6 +20,7 @@ class Flake8junit(BaseFormatter):
             testcase.attrib['classname'] = 'flake8.%s' % error.code
             testcase.attrib['name'] = error.filename
             testcase.attrib['line'] = '%d' % error.line_number
+            testcase.attrib['time'] = '0'
 
             failure = ET.SubElement(testcase, 'failure')
             failure.attrib['message'] = "{0}:{1}:{2} {3} {4}".format(
@@ -59,6 +59,8 @@ class Flake8junit(BaseFormatter):
 
     def show_benchmarks(self, benchmarks):
         for benchmark, value in benchmarks:
+            if benchmark == 'seconds elapsed':
+                self.duration = value
             testcase = ET.SubElement(self._root, 'testcase')
             testcase.attrib['classname'] = 'flake8.benchmarks'
             testcase.attrib['name'] = benchmark
@@ -77,6 +79,13 @@ class Flake8junit(BaseFormatter):
 
     def stop(self):
         self.write('<?xml version="1.0" encoding="utf-8"?>', None)
+
+        # Test suite statistics
+        self._root.attrib['errors'] = "0"
+        self._root.attrib['failures'] = '%d' % len(list(self._root))
+        self._root.attrib['tests'] = '%d' % len(list(self._root))
+        # This requires --benchmark
+        self._root.attrib['time'] = '{0}'.format(self.duration)
         res = ET.tostring(self._root, encoding='utf-8')
         if isinstance(res, bytes):
             res = res.decode('utf-8')
