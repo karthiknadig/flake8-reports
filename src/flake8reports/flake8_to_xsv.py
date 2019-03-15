@@ -2,7 +2,7 @@ import csv
 from flake8.formatting.base import BaseFormatter
 try:
     import StringIO
-except:
+except ImportError:
     import io as StringIO
 
 
