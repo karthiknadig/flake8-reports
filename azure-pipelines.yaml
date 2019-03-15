@@ -129,7 +129,7 @@ jobs:
   - script: pip install -r test_requirements.txt
     displayName: 'Install test requirements'
 
-  - script: flake8 --omit tests/* .
+  - script: flake8 .
     displayName: 'Run lint'
 
   - script: tox -e py -- -vv --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
