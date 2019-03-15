@@ -130,7 +130,7 @@ jobs:
     displayName: 'Install test requirements'
 
   - script: flake8 --omit tests/* .
-   displayName: 'Run lint'
+    displayName: 'Run lint'
 
    - script: tox -e py -- -vv --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
     displayName: 'Run tests'
