@@ -1,5 +1,5 @@
 jobs:
-- job: 'Test Linux'
+- job: 'Test_Linux'
   pool:
     vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
   strategy:
@@ -37,7 +37,7 @@ jobs:
       testResultsFiles: '**/test-*.xml'
       testRunTitle: 'Publish test results for Python $(python.version)'
 
-- job: 'Test Windows'
+- job: 'Test_Windows'
   pool:
     vmImage: 'vs2017-win2016' # other options: 'macOS-10.13', 'vs2017-win2016'
   strategy:
@@ -75,7 +75,7 @@ jobs:
       testResultsFiles: '**/test-*.xml'
       testRunTitle: 'Publish test results for Python $(python.version)'
 
-- job: 'Test Mac'
+- job: 'Test_Mac'
   pool:
     vmImage: 'macOS-10.13'
   strategy:
@@ -108,7 +108,7 @@ jobs:
       testRunTitle: 'Publish test results for Python $(python.version)'
 
 
-- job: 'Lint & Coverage'
+- job: 'Lint_Coverage'
   pool:
     vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
   strategy:
