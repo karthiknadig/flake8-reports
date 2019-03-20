@@ -7,6 +7,9 @@ from tests.helpers.util import is_int, is_real
 
 
 def _validate_junit(result, **options):
+    show_source = options.get('show_source', False)
+    expect_stats = options.get('statistic', False)
+    expect_benchmarks = options.get('benchmark', False)
     root = ET.fromstring(result)
     assert root.tag == 'testsuite'
     assert sorted(list(root.attrib.keys())) == ['errors', 'failures', 'name', 'tests', 'time']
@@ -39,6 +42,11 @@ def _validate_junit(result, **options):
             if child.tag == 'failure':
                 assert child.attrib['type'] in ('ERROR', 'WARNING')
                 assert child.attrib['message'] is not None
+                if show_source:
+                    assert len(child.text) > 0
+
+    if expect_stats:
+        assert len(statistics) > 0
 
     for stat in statistics:
         assert stat.tag == 'testcase'
@@ -51,6 +59,9 @@ def _validate_junit(result, **options):
         assert len(children) == 1
         assert children[0].tag == 'system-out'
         assert len(children[0].text) > 0
+
+    if expect_benchmarks:
+        assert len(benchmarks) > 0
 
     for bmark in benchmarks:
         assert stat.tag == 'testcase'
@@ -67,7 +78,50 @@ def _validate_junit(result, **options):
 
 
 def _validate_xml(result, **options):
-    pass
+    show_source = options.get('show_source', False)
+    expect_stats = options.get('statistic', False)
+    expect_benchmarks = options.get('benchmark', False)
+
+    root = ET.fromstring(result)
+    assert root.tag == 'report'
+    children = list(root)
+
+    errors = list(c for c in children if c.tag == 'errors')
+    assert len(errors) == 1
+    errors = errors[0]
+
+    for error in errors:
+        assert error.tag in ('error', 'warning')
+        assert len(error.attrib['filename']) > 0
+        assert is_int(error.attrib['line'])
+        assert is_int(error.attrib['column'])
+        assert error.attrib['code'] is not None
+        assert len(error.attrib['message']) > 0
+
+        if show_source:
+            assert len(error.text) > 0
+
+    if expect_stats:
+        statistics = list(c for c in children if c.tag == 'statistics')
+        assert len(statistics) == 1
+        statistics = statistics[0]
+
+        for statistic in statistics:
+            assert statistic.tag == 'statistic'
+            assert len(statistic.attrib['code']) > 0
+            assert is_int(statistic.attrib['count'])
+            assert len(statistic.attrib['message']) > 0
+
+    if expect_benchmarks:
+        benchmarks = list(c for c in children if c.tag == 'statistics')
+        assert len(benchmarks) == 1
+        benchmarks = benchmarks[0]
+
+        for benchmark in benchmarks:
+            assert benchmark.tag == 'benchmark'
+            assert len(benchmark.attrib['name']) > 0
+            value = benchmark.attrib['value']
+            assert is_int(value) or is_real(value)
 
 
 def _validate_json(result, **options):

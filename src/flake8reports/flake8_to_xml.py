@@ -27,16 +27,16 @@ class Flake8xml(BaseFormatter):
                 data.text = super(Flake8xml, self).show_source(error)
 
     def show_statistics(self, statistics):
-        stats = ET.SubElement(self._root, 'stats')
+        stats = ET.SubElement(self._root, 'statistics')
         for error_code in statistics.error_codes():
-            stat = ET.SubElement(stats, 'testcase')
+            stat = ET.SubElement(stats, 'statistic')
 
             stats_for_error_code = statistics.statistics_for(error_code)
             statistic = next(stats_for_error_code)
             count = statistic.count
             count += sum(stat.count for stat in stats_for_error_code)
 
-            stat.attrib['name'] = error_code
+            stat.attrib['code'] = error_code
             stat.attrib['count'] = "{count}".format(count=count)
             stat.attrib['message'] = "{message}".format(message=statistic.message)
 
