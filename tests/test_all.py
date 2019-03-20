@@ -192,7 +192,7 @@ _validate = {
 def test_flake8_output(fmt, testfile, tmpdir):
     @testfile
     def code_to_lint():
-        a=1
+        a=1 
 
     result_file = '{0}'.format(tmpdir.join('result.txt'))
     args = [sys.executable, '-m', 'flake8', '--format={0}'.format(fmt),

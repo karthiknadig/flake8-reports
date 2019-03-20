@@ -6,7 +6,7 @@ class Flake8junit(BaseFormatter):
     """Flake8's error text to JUnit XML converter."""
 
     def _is_error(self, code):
-        return len(code) > 0 and code[0] in ('e', 'E')
+        return len(code) > 0 and code[0] not in ('w', 'W')
 
     def start(self):
         super(Flake8junit, self).start()

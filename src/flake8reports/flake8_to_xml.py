@@ -6,7 +6,7 @@ class Flake8xml(BaseFormatter):
     """Flake8's error text to XML converter."""
 
     def _is_error(self, code):
-        return len(code) > 0 and code[0] in ('e', 'E')
+        return len(code) > 0 and code[0] not in ('w', 'W')
 
     def start(self):
         super(Flake8xml, self).start()
