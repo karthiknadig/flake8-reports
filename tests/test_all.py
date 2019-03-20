@@ -1,3 +1,4 @@
+import json
 import os
 import pytest
 import sys
@@ -101,8 +102,8 @@ def _validate_xml(result, **options):
         if show_source:
             assert len(error.text) > 0
 
+    statistics = list(c for c in children if c.tag == 'statistics')
     if expect_stats:
-        statistics = list(c for c in children if c.tag == 'statistics')
         assert len(statistics) == 1
         statistics = statistics[0]
 
@@ -111,9 +112,11 @@ def _validate_xml(result, **options):
             assert len(statistic.attrib['code']) > 0
             assert is_int(statistic.attrib['count'])
             assert len(statistic.attrib['message']) > 0
+    else:
+        assert statistics == []
 
+    benchmarks = list(c for c in children if c.tag == 'benchmarks')
     if expect_benchmarks:
-        benchmarks = list(c for c in children if c.tag == 'statistics')
         assert len(benchmarks) == 1
         benchmarks = benchmarks[0]
 
@@ -122,10 +125,45 @@ def _validate_xml(result, **options):
             assert len(benchmark.attrib['name']) > 0
             value = benchmark.attrib['value']
             assert is_int(value) or is_real(value)
+    else:
+        assert benchmarks == []
 
 
 def _validate_json(result, **options):
-    pass
+    show_source = options.get('show_source', False)
+    expect_stats = options.get('statistic', False)
+    expect_benchmarks = options.get('benchmark', False)
+
+    obj = json.loads(result)
+    errors = obj['errors']
+    warnings = obj['warnings']
+    statistics = obj['statistics']
+    benchmarks = obj['benchmarks']
+
+    for o in errors + warnings:
+        assert len(o['filename']) > 0
+        assert is_int(o['line'])
+        assert is_int(o['column'])
+        assert o['code'] is not None
+        assert len(o['message']) > 0
+        if show_source:
+            assert len(o['source']) > 0
+
+    if expect_stats:
+        for statistic in statistics:
+            assert len(statistic.attrib['code']) > 0
+            assert is_int(statistic.attrib['count'])
+            assert len(statistic.attrib['message']) > 0
+    else:
+        assert statistics == []
+
+    if expect_benchmarks:
+        for benchmark in benchmarks:
+            assert len(benchmark.attrib['benchmark']) > 0
+            value = benchmark.attrib['value']
+            assert is_int(value) or is_real(value)
+    else:
+        assert benchmarks == []
 
 
 def _validate_csv(result, **options):
