@@ -9,7 +9,7 @@ from tests.helpers.util import is_int, is_real
 
 def _validate_junit(result, **options):
     show_source = options.get('show_source', False)
-    expect_stats = options.get('statistic', False)
+    expect_stats = options.get('statistics', False)
     expect_benchmarks = options.get('benchmark', False)
     root = ET.fromstring(result)
     assert root.tag == 'testsuite'
@@ -65,14 +65,14 @@ def _validate_junit(result, **options):
         assert len(benchmarks) > 0
 
     for bmark in benchmarks:
-        assert stat.tag == 'testcase'
-        assert stat.attrib['classname'] == 'flake8.benchmarks'
-        assert stat.attrib['name'] is not None
-        value = stat.attrib['value']
+        assert bmark.tag == 'testcase'
+        assert bmark.attrib['classname'] == 'flake8.benchmarks'
+        assert bmark.attrib['name'] is not None
+        value = bmark.attrib['value']
         assert value is not None
         assert is_int(value) or is_real(value)
 
-        children = list(stat)
+        children = list(bmark)
         assert len(children) == 1
         assert children[0].tag == 'system-out'
         assert len(children[0].text) > 0
@@ -80,7 +80,7 @@ def _validate_junit(result, **options):
 
 def _validate_xml(result, **options):
     show_source = options.get('show_source', False)
-    expect_stats = options.get('statistic', False)
+    expect_stats = options.get('statistics', False)
     expect_benchmarks = options.get('benchmark', False)
 
     root = ET.fromstring(result)
@@ -131,7 +131,7 @@ def _validate_xml(result, **options):
 
 def _validate_json(result, **options):
     show_source = options.get('show_source', False)
-    expect_stats = options.get('statistic', False)
+    expect_stats = options.get('statistics', False)
     expect_benchmarks = options.get('benchmark', False)
 
     obj = json.loads(result)
@@ -151,16 +151,16 @@ def _validate_json(result, **options):
 
     if expect_stats:
         for statistic in statistics:
-            assert len(statistic.attrib['code']) > 0
-            assert is_int(statistic.attrib['count'])
-            assert len(statistic.attrib['message']) > 0
+            assert len(statistic['code']) > 0
+            assert is_int(statistic['count'])
+            assert len(statistic['message']) > 0
     else:
         assert statistics == []
 
     if expect_benchmarks:
         for benchmark in benchmarks:
-            assert len(benchmark.attrib['benchmark']) > 0
-            value = benchmark.attrib['value']
+            assert len(benchmark['benchmark']) > 0
+            value = benchmark['value']
             assert is_int(value) or is_real(value)
     else:
         assert benchmarks == []
@@ -195,7 +195,8 @@ def test_flake8_output(fmt, testfile, tmpdir):
         a=1
 
     result_file = '{0}'.format(tmpdir.join('result.txt'))
-    args = [sys.executable, '-m', 'flake8', '--format={0}'.format(fmt), '--output-file', result_file]
+    args = [sys.executable, '-m', 'flake8', '--format={0}'.format(fmt),
+            '--output-file', result_file, '--show-source', '--statistics', '--benchmark']
     cwd = os.path.dirname(code_to_lint)
 
     process = subprocess.Popen(args, cwd=cwd)
@@ -208,4 +209,4 @@ def test_flake8_output(fmt, testfile, tmpdir):
     with open(result_file, 'r') as res:
         result = res.read()
         print('RESULT: ' + result)
-        _validate[fmt](result)
+        _validate[fmt](result, show_source=True, statistics=True, benchmark=True)
