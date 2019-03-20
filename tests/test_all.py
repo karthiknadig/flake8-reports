@@ -3,6 +3,7 @@ import pytest
 import sys
 import subprocess
 from xml.etree import ElementTree as ET
+from tests.helpers.util import is_int, is_real
 
 
 def _validate_junit(result, **options):
@@ -11,10 +12,58 @@ def _validate_junit(result, **options):
     assert sorted(list(root.attrib.keys())) == ['errors', 'failures', 'name', 'tests', 'time']
     assert root.attrib['name'] == 'flake8'
 
-    children = list(root)
-    assert int(root.attrib['tests']) == len(children)
-    assert int(root.attrib['failures']) == len(children)
+    testcases = list(root)
+    assert int(root.attrib['tests']) == len(testcases)
+    assert int(root.attrib['failures']) == len(testcases)
     assert int(root.attrib['errors']) == 0
+
+    statistics = list(t for t in testcases
+                      if t.attrib['classname'] == 'flake8.statistics')
+    benchmarks = list(t for t in testcases
+                      if t.attrib['classname'] == 'flake8.benchmarks')
+
+    testcases = list(t for t in testcases
+                     if t.attrib['classname'] not in ('flake8.statistics', 'flake8.benchmarks'))
+    for testcase in testcases:
+        assert testcase.tag == 'testcase'
+        assert testcase.attrib['classname'].startswith('flake8')
+        assert is_int(testcase.attrib['line'])
+        assert is_int(testcase.attrib['time'])
+        assert testcase.attrib['name'] is not None
+
+        children = list(testcase)
+        for child in children:
+            # <failure message=" text " type="ERROR|WARNING" />
+            # <system-out> text </system-out>
+            assert child.tag in ('failure', 'system-out')
+            if child.tag == 'failure':
+                assert child.attrib['type'] in ('ERROR', 'WARNING')
+                assert child.attrib['message'] is not None
+
+    for stat in statistics:
+        assert stat.tag == 'testcase'
+        assert stat.attrib['classname'] == 'flake8.statistics'
+        assert stat.attrib['code'] is not None
+        assert is_int(stat.attrib['count'])
+        assert stat.attrib['message'] is not None
+
+        children = list(stat)
+        assert len(children) == 1
+        assert children[0].tag == 'system-out'
+        assert len(children[0].text) > 0
+
+    for bmark in benchmarks:
+        assert stat.tag == 'testcase'
+        assert stat.attrib['classname'] == 'flake8.benchmarks'
+        assert stat.attrib['name'] is not None
+        value = stat.attrib['value']
+        assert value is not None
+        assert is_int(value) or is_real(value)
+
+        children = list(stat)
+        assert len(children) == 1
+        assert children[0].tag == 'system-out'
+        assert len(children[0].text) > 0
 
 
 def _validate_xml(result, **options):
