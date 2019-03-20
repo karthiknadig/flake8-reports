@@ -4,6 +4,7 @@ import sys
 import subprocess
 from xml.etree import ElementTree as ET
 
+
 def _validate_junit(result, **options):
     root = ET.fromstring(result)
     assert root.tag == 'testsuite'
@@ -15,20 +16,26 @@ def _validate_junit(result, **options):
     assert int(root.attrib['failures']) == len(children)
     assert int(root.attrib['errors']) == 0
 
+
 def _validate_xml(result, **options):
     pass
+
 
 def _validate_json(result, **options):
     pass
 
+
 def _validate_csv(result, **options):
     pass
+
 
 def _validate_tsv(result, **options):
     pass
 
+
 def _validate_ssv(result, **options):
     pass
+
 
 _validate = {
     'junit': _validate_junit,
@@ -39,14 +46,15 @@ _validate = {
     'ssv': _validate_ssv,
 }
 
+
 @pytest.mark.timeout(10)
 def test_flake8_output(fmt, testfile, tmpdir):
     @testfile
     def code_to_lint():
         a=1
 
-    result_file = tmpdir.join('result.txt')
-    args = [sys.executable, '-m', 'flake8', '--format={0}'.format(fmt), '--output-file={0}'.format(result_file)]
+    result_file = '{0}'.format(tmpdir.join('result.txt'))
+    args = [sys.executable, '-m', 'flake8', '--format={0}'.format(fmt), '--output-file', result_file]
     cwd = os.path.dirname(code_to_lint)
     process = subprocess.Popen(args, cwd=cwd)
     process.wait(5)
