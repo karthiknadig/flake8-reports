@@ -105,8 +105,14 @@ def test_flake8_output(fmt, testfile, tmpdir):
     result_file = '{0}'.format(tmpdir.join('result.txt'))
     args = [sys.executable, '-m', 'flake8', '--format={0}'.format(fmt), '--output-file', result_file]
     cwd = os.path.dirname(code_to_lint)
+
     process = subprocess.Popen(args, cwd=cwd)
-    process.wait(5)
+    try:
+        process.wait(5)
+    except TypeError:
+        # Python 2.* wait does not take any arguments.
+        process.wait()
+
     with open(result_file, 'r') as res:
         result = res.read()
         print('RESULT: ' + result)
