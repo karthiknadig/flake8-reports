@@ -11,7 +11,7 @@
 
 ### Installtion
 ```console
-python -m pip install --pre flake8reports
+python -m pip install git+https://github.com/karthiknadig/flake8reports
 ```
 
 ### Usage
