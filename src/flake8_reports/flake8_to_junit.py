@@ -83,6 +83,16 @@ class Flake8junit(BaseFormatter):
         # Test suite statistics
         self._root.attrib['errors'] = "0"
         self._root.attrib['failures'] = '%d' % len(list(self._root))
+
+        if self._root.attrib['failures'] == '0':
+            # Add a dummy testcase
+            testcase = ET.SubElement(self._root, 'testcase')
+            testcase.attrib['classname'] = 'flake8'
+            testcase.attrib['name'] = 'passed'
+            testcase.attrib['time'] = '0'
+            systemout = ET.SubElement(testcase, 'system-out')
+            systemout.text = 'Passed'
+
         self._root.attrib['tests'] = '%d' % len(list(self._root))
         # This requires --benchmark
         self._root.attrib['time'] = '{0}'.format(self.duration)

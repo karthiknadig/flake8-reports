@@ -188,12 +188,7 @@ _validate = {
 }
 
 
-@pytest.mark.timeout(10)
-def test_flake8_output(fmt, testfile, tmpdir):
-    @testfile
-    def code_to_lint():
-        a=1 
-
+def common_test(fmt, code_to_lint, tmpdir):
     result_file = '{0}'.format(tmpdir.join('result.txt'))
     args = [sys.executable, '-m', 'flake8', '--format={0}'.format(fmt),
             '--output-file', result_file, '--show-source', '--statistics', '--benchmark']
@@ -210,3 +205,22 @@ def test_flake8_output(fmt, testfile, tmpdir):
         result = res.read()
         print('RESULT: ' + result)
         _validate[fmt](result, show_source=True, statistics=True, benchmark=True)
+
+
+@pytest.mark.timeout(10)
+def test_formatting_with_linter_errors(fmt, testfile, tmpdir):
+    @testfile
+    def code_to_lint():
+        a=1 
+
+    common_test(fmt, code_to_lint, tmpdir)
+
+
+@pytest.mark.timeout(10)
+def test_formatting_with_linter_errors(fmt, testfile, tmpdir):
+    @testfile
+    def code_to_lint():
+        a = 1
+        print(a)
+
+    common_test(fmt, code_to_lint, tmpdir)
