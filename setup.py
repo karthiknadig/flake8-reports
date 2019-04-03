@@ -29,7 +29,7 @@ setuptools.setup(
         ],
     },
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Framework :: Flake8",
         "Environment :: Console",
         "Intended Audience :: Developers",
