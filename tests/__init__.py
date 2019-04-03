@@ -1,4 +1,4 @@
-__doc__ = """pytest-based flake8reports tests."""
+__doc__ = """pytest-based flake8-reports tests."""
 
 import pytest
 

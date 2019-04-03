@@ -132,7 +132,7 @@ jobs:
   - script: flake8 .
     displayName: 'Run lint'
 
-  - script: tox -e py -- -vv --junitxml=junit/test-results.xml --cov=flake8reports --cov-report=xml --cov-report=html
+  - script: tox -e py -- -vv --junitxml=junit/test-results.xml --cov=flake8-reports --cov-report=xml --cov-report=html
     displayName: 'Run tests'
 
   - task: PublishCodeCoverageResults@1

@@ -2,4 +2,4 @@ include LICENSE
 include DESCRIPTION.md
 global-exclude *.py[cdo]
 include versioneer.py
-include src/flake8reports/_version.py
+include src/flake8_reports/_version.py
