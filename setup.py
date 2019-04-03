@@ -14,7 +14,7 @@ setuptools.setup(
     author="Karthik Nadig",
     url="https://github.com/karthiknadig/flake8-reports",
     python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*',
-    packages=["flake8-reports", ],
+    packages=["flake8_reports", ],
     package_dir={'': 'src'},
     install_requires=["flake8 > 3.0.0", ],
     entry_points={
