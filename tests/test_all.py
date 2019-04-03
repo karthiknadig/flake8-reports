@@ -46,9 +46,6 @@ def _validate_junit(result, **options):
                 if show_source:
                     assert len(child.text) > 0
 
-    if expect_stats:
-        assert len(statistics) > 0
-
     for stat in statistics:
         assert stat.tag == 'testcase'
         assert stat.attrib['classname'] == 'flake8.statistics'
@@ -60,9 +57,6 @@ def _validate_junit(result, **options):
         assert len(children) == 1
         assert children[0].tag == 'system-out'
         assert len(children[0].text) > 0
-
-    if expect_benchmarks:
-        assert len(benchmarks) > 0
 
     for bmark in benchmarks:
         assert bmark.tag == 'testcase'
