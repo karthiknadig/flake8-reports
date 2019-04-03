@@ -3,15 +3,16 @@ import versioneer
 
 
 with open('DESCRIPTION.md', 'r') as desc:
-    description = desc.read()
+    long_description = desc.read()
 
 setuptools.setup(
     name="flake8-reports",
     license="MIT",
     version=versioneer.get_version(),
-    description=description,
-    long_description_content_type='text/markdown',
+    description='This package provides formatting XML, JSON, and JUnit for flake8', # noqa
+    long_description=long_description,
     author="Karthik Nadig",
+    author_email="karthiknadig@gmail.com",
     url="https://github.com/karthiknadig/flake8-reports",
     python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*',
     packages=["flake8_reports", ],
